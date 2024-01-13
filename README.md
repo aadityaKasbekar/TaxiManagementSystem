@@ -7,4 +7,4 @@ A repository for TAXI MANAGEMENT SYSTEM project.
 
 # [Final ERD (P3 Deliverable)](./P3/P3_DMDD_Project.pdf)
 
-# [DB Code](./P4//ALL_SQL_Scripts/TaxiManagementSystem.ipynb)
+# [DB Code](./P4/ALL_SQL_Scripts/TaxiManagementSystem.ipynb)
