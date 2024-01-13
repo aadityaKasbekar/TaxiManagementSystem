@@ -6,3 +6,5 @@ A repository for TAXI MANAGEMENT SYSTEM project.
 # [Initial ERD (P2 Deliverable)](./P2/Group5_P2_InitialERD.pdf)
 
 # [Final ERD (P3 Deliverable)](./P3/P3_DMDD_Project.pdf)
+
+# [Final ERD (P3 Deliverable)](./P4/TaxiManagementSystem.ipynb)
