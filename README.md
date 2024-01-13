@@ -1,10 +1,10 @@
 # TAXI MANAGEMENT SYSTEM Database
 A repository for TAXI MANAGEMENT SYSTEM project.
 
-# [Objectives (P1 deliverable)](./P1/dmdd_project_objectives.pdf)
+# [Project Objectives](./P1/Project_Objectives.pdf)
 
-# [Initial ERD (P2 Deliverable)](./P2/Group5_P2_InitialERD.pdf)
+# [Initial ERD](./P2/Initial_ERD.pdf)
 
-# [Final ERD (P3 Deliverable)](./P3/P3_DMDD_Project.pdf)
+# [Final ERD](./P3/Final_ERD.pdf)
 
 # [DB Code](./P4/ALL_SQL_Scripts/TaxiManagementSystem.ipynb)
