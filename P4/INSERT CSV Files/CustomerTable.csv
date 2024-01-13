@@ -1,0 +1,61 @@
+CustomerID,UserID,EncryptedPaymentInfo
+1,17,Credit Card - XXXX-XXXX-XXXX-XXXX
+2,90,PayPal - user@example.com
+3,48,Debit Card - YYYY-YYYY-YYYY-YYYY
+4,33,Bank Transfer - Account: XXXXXXXX
+5,46,Routing: YYYYYYYY
+6,64,Cash on Delivery
+7,96,Credit Card - ZZZZ-ZZZZ-ZZZZ-ZZZZ
+8,51,Debit Card - KKKK-KKKK-KKKK-KKKK
+9,81,PayPal - user2@example.com
+10,6,Bank Transfer - Account: QQQQ-QQQQ-QQQQ
+11,72,Routing: WWWW-WWWW-WWWW
+12,17,Cash on Delivery
+13,53,Credit Card - XXXX-XXXX-XXXX-XXXX
+14,46,PayPal - user@example.com
+15,72,Debit Card - YYYY-YYYY-YYYY-YYYY
+16,9,Bank Transfer - Account: XXXXXXXX
+17,50,Routing: YYYYYYYY
+18,98,Cash on Delivery
+19,87,Credit Card - ZZZZ-ZZZZ-ZZZZ-ZZZZ
+20,60,Debit Card - KKKK-KKKK-KKKK-KKKK
+21,45,PayPal - user2@example.com
+22,65,Bank Transfer - Account: QQQQ-QQQQ-QQQQ
+23,76,Routing: WWWW-WWWW-WWWW
+24,58,Cash on Delivery
+25,4,Credit Card - XXXX-XXXX-XXXX-XXXX
+26,69,PayPal - user@example.com
+27,33,Debit Card - YYYY-YYYY-YYYY-YYYY
+28,97,Bank Transfer - Account: XXXXXXXX
+29,13,Routing: YYYYYYYY
+30,54,Cash on Delivery
+31,61,Credit Card - ZZZZ-ZZZZ-ZZZZ-ZZZZ
+32,26,Debit Card - KKKK-KKKK-KKKK-KKKK
+33,22,PayPal - user2@example.com
+34,41,Bank Transfer - Account: QQQQ-QQQQ-QQQQ
+35,2,Routing: WWWW-WWWW-WWWW
+36,57,Cash on Delivery
+37,48,Credit Card - XXXX-XXXX-XXXX-XXXX
+38,65,PayPal - user@example.com
+39,13,Debit Card - YYYY-YYYY-YYYY-YYYY
+40,31,Bank Transfer - Account: XXXXXXXX
+41,51,Routing: YYYYYYYY
+42,76,Cash on Delivery
+43,64,Credit Card - ZZZZ-ZZZZ-ZZZZ-ZZZZ
+44,1,Debit Card - KKKK-KKKK-KKKK-KKKK
+45,68,PayPal - user2@example.com
+46,48,Bank Transfer - Account: QQQQ-QQQQ-QQQQ
+47,74,Routing: WWWW-WWWW-WWWW
+48,12,Cash on Delivery
+49,24,Credit Card - XXXX-XXXX-XXXX-XXXX
+50,80,PayPal - user@example.com
+51,25,Debit Card - YYYY-YYYY-YYYY-YYYY
+52,15,Bank Transfer - Account: XXXXXXXX
+53,40,Routing: YYYYYYYY
+54,50,Cash on Delivery
+55,99,Credit Card - ZZZZ-ZZZZ-ZZZZ-ZZZZ
+56,92,Debit Card - KKKK-KKKK-KKKK-KKKK
+57,47,PayPal - user2@example.com
+58,94,Bank Transfer - Account: QQQQ-QQQQ-QQQQ
+59,86,Routing: WWWW-WWWW-WWWW
+60,10,Cash on Delivery

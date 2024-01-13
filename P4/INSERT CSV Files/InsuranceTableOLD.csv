@@ -1,0 +1,11 @@
+InsuranceId,InsuranceProvider,InsuranceCoverage,InsurancePremium,InsuranceDeductible
+1,XYZ Insurance,Comprehensive Coverage,500,50
+2,SafeDrive Assurance,Liability Coverage,300,30
+3,Guardian Insurers,Collision Coverage,400,40
+4,Shield Protect,Full Coverage,600,60
+5,SureSafety Insurance,Uninsured Motorist Coverage,250,25
+6,FastCover Insurance,Personal Injury Protection,350,35
+7,Guardian Shield,Rental Car Coverage,200,20
+8,Swift Assurance,Medical Payments Coverage,300,30
+9,SecureRide Insurance,Underinsured Motorist Coverage,400,40
+10,TotalProtect Insurers,Roadside Assistance,100,10

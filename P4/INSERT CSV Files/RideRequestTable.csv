@@ -1,0 +1,11 @@
+RequestId,EstimationID,VehicleID,DriverID,CustomerID,RequestType,ReqDateTime,PickUpLocationLatitude,PickUpLocationLongitude,DestinationLocationLatitude,DestinationLocationLongitude,TripType,TripCompletionFlag,PickUpLocation,DestinationLocation
+1,1,2,1,1,City Cab,00:00.0,40.7128,-74.006,40.7414,-73.9906,City Cab,1,123 Main St,456 Broadway
+2,2,4,1,2,Out Station Cab,00:00.0,34.0522,-118.2437,37.7749,-122.4194,Out Station Cab,0,789 Oak St,101 Pine St
+3,3,1,1,3,City Cab,00:00.0,41.8781,-87.6298,39.9526,-75.1652,City Cab,1,567 Elm St,202 Walnut St
+4,4,3,2,4,Out Station Cab,00:00.0,29.7604,-95.3698,32.7767,-96.797,Out Station Cab,0,890 Maple St,303 Oak St
+5,5,5,2,5,City Cab,00:00.0,34.0522,-118.2437,34.0522,-118.2437,City Cab,1,111 Pine St,999 Maple St
+6,6,6,6,6,City Cab,30:00.0,37.7749,-122.4194,34.0522,-118.2437,City Cab,1,123 Oak St,456 Pine St
+7,7,7,7,7,Out Station Cab,00:00.0,34.0522,-118.2437,37.7749,-122.4194,Out Station Cab,0,789 Elm St,101 Walnut St
+8,8,8,8,8,City Cab,30:00.0,41.8781,-87.6298,39.9526,-75.1652,City Cab,1,567 Maple St,202 Oak St
+9,9,9,9,9,Out Station Cab,00:00.0,29.7604,-95.3698,32.7767,-96.797,Out Station Cab,0,890 Pine St,303 Maple St
+10,10,10,10,10,City Cab,00:00.0,34.0522,-118.2437,34.0522,-118.2437,City Cab,1,111 Walnut St,999 Elm St
