@@ -1,0 +1,220 @@
+# TaxiManagementSystem — Database Architecture Audit & Re-Architecting Plan
+
+## Executive Summary
+
+A deep audit of the TaxiManagementSystem database layer reveals a functional but academically-oriented schema with **critical gaps** in normalization, indexing, security, data integrity, and scalability. This document presents the **As-Is** state, a professional **To-Be** target, and a phased re-architecting plan.
+
+---
+
+## As-Is State (Current Architecture)
+
+### Schema Overview
+
+| Table | PK Strategy | Notable Issues |
+|---|---|---|
+| `Service` | Manual `INT` | No `AUTO_INCREMENT`; all columns nullable except PK |
+| `Insurance` | Manual `INT` | Same as above |
+| `Vehicle` | Manual `INT` | `InsuranceInfo` is `CHAR(1)` Y/N flag instead of FK lookup |
+| `User` | Manual `INT` | Reserved keyword as table name; `BankAccInfo` stored plaintext |
+| `Customer` | `AUTO_INCREMENT` | `EncryptedPaymentInfo` is `LONGBLOB` with hardcoded AES key |
+| `PaymentInformation` | **No PK** | Foreign key only; no primary key at all |
+| `Driver` | `AUTO_INCREMENT` | Sound FK relationships |
+| `Temp` | **No PK** | Orphan table; ambiguous name; FK only to Driver |
+| `Feedback` | `AUTO_INCREMENT` | `Rating` is `FLOAT` (precision issues); no timestamp |
+| `TripEstimate` | Manual `INT` | Column named `CurrentTime` (reserved word); no AUTO_INCREMENT |
+| `RideRequest` | Manual `INT` | 4 FKs + 12 columns; stores redundant lat/lng AND text location |
+| `ServiceRequest` | Manual `INT` | OK structure but `PreviousServiceDate` is denormalized |
+| `InsuranceLogs` | **No PK** | Junction table missing its own PK; no date constraints |
+
+### Current Indexes (5 total)
+
+| Index | Table.Column | Missing Coverage |
+|---|---|---|
+| `idx_CustomerID` | `RideRequest.CustomerID` | ✓ Reasonable |
+| `idx_DriverID` | `RideRequest.DriverID` | ✓ Reasonable |
+| `idx_DriverID_Feedback` | `Feedback.DriverID` | ✓ Reasonable |
+| `idx_VehicleID_ServiceRequest` | `ServiceRequest.VehicleID` | ✓ Reasonable |
+| `idx_InsuranceId_InsuranceLogs` | `InsuranceLogs.InsuranceId` | ✓ Reasonable |
+
+### Critical Findings
+
+#### 🔴 Severity: Critical
+
+1. **Hardcoded Encryption Key** — AES key `'AmeySatwe23'` is stored in plain SQL scripts (trigger, stored proc, and examples). This is a **severe security vulnerability**.
+2. **Missing Primary Keys** — `PaymentInformation`, `Temp`, and `InsuranceLogs` have no primary key, violating relational fundamentals and preventing efficient updates/deletes.
+3. **Orphan `Temp` Table** — Named `Temp` with a comment saying "VehicleAssigned," it duplicates data already in `Driver` and has no clear purpose.
+4. **Plaintext Sensitive Data** — `User.BankAccInfo` stores bank account info as plaintext `VARCHAR(255)`.
+5. **No UNIQUE Constraints** — `User.EmailId` and `User.PhoneNumber` have no unique constraints, allowing duplicate registrations.
+
+#### 🟠 Severity: High
+
+6. **Inconsistent PK Strategy** — Mix of manual `INT` and `AUTO_INCREMENT`; high-traffic tables (`RideRequest`, `TripEstimate`) use manual IDs, risking collision.
+7. **Missing NOT NULL Constraints** — Most FK columns are nullable, meaning rides can exist without a customer, driver, or vehicle reference.
+8. **No Timestamp Audit Trail** — No `created_at` / `updated_at` columns on any table.
+9. **`FLOAT` for `Rating`** — Floating-point precision issues; should be `DECIMAL(2,1)`.
+10. **Redundant Location Data** — `RideRequest` stores lat/lng AND text descriptions, with no `Location` entity.
+11. **CustomerAndVehicleView Bug** — Joins `Customer.CustomerId = Vehicle.VehicleId`, which is semantically incorrect (comparing unrelated IDs).
+
+#### 🟡 Severity: Medium
+
+12. **Reserved Word Table Name** — `User` table requires backtick escaping everywhere.
+13. **Missing Indexes** — No index on `User.EmailId`, `RideRequest.ReqDateTime`, `Feedback.CustomerID`, `Customer.UserID`, `Driver.UserID`.
+14. **No ENUM/Lookup Tables** — `TripType`, `RequestType`, `VehicleType` are freeform `VARCHAR` instead of lookup tables.
+15. **No Cascading Delete/Update Rules** — All FKs use default `RESTRICT`, making cleanup brittle.
+16. **Dual-Platform Scripts** — SQL Server (T-SQL) and MySQL scripts co-exist with incompatible syntax and no clear "source of truth."
+17. **`ServiceDueinDays` UDF Argument Order** — The UDF calculates `DATEDIFF(ReqDateTime, ServiceDueDate)` which yields a negative number (due date is in the future).
+
+---
+
+## To-Be State (Recommended Architecture)
+
+### Design Principles
+
+- **All tables get a surrogate `AUTO_INCREMENT` primary key**
+- **All sensitive data encrypted at rest; no hardcoded keys**
+- **All FKs are NOT NULL where the relationship is mandatory**
+- **Audit columns (`created_at`, `updated_at`) on every table**
+- **Lookup/reference tables for constrained values**
+- **Proper `UNIQUE` constraints on natural keys**
+- **Comprehensive indexing strategy driven by query patterns**
+
+### Proposed Schema Changes
+
+#### Phase 1 — Fix Critical Integrity Issues
+
+| Change | Rationale |
+|---|---|
+| Add PK to `PaymentInformation`, `InsuranceLogs` | Every table must have a PK |
+| Drop `Temp` table | Orphan; duplicates Driver data |
+| Rename `User` → `AppUser` | Avoid reserved keyword |
+| Add `UNIQUE` on `AppUser.EmailId`, `AppUser.PhoneNumber` | Prevent duplicates |
+| Make FK columns `NOT NULL` where mandatory (`RideRequest.CustomerID`, `.DriverID`, etc.) | Enforce referential integrity |
+
+#### Phase 2 — Normalize & Add Lookup Tables
+
+| Change | Rationale |
+|---|---|
+| Create `Location` table (`LocationId`, `Latitude`, `Longitude`, `Address`) | Eliminate redundant lat/lng + text in `RideRequest` |
+| Create `TripType` lookup table | Replace freeform `VARCHAR` |
+| Create `VehicleType` lookup table | Replace freeform `VARCHAR` |
+| Create `RequestType` lookup table | Replace freeform `VARCHAR` |
+| Create `RideStatus` ENUM or lookup | Replace `TripCompletionFlag TINYINT` with meaningful states (Requested, Accepted, InProgress, Completed, Cancelled) |
+
+#### Phase 3 — Security & Audit Hardening
+
+| Change | Rationale |
+|---|---|
+| Remove `BankAccInfo` from `AppUser` or encrypt it | Plaintext financial data |
+| Externalize encryption keys (use env vars or key vault) | Hardcoded key in SQL is a vulnerability |
+| Add `created_at DATETIME DEFAULT CURRENT_TIMESTAMP` to all tables | Audit trail |
+| Add `updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP` to all tables | Audit trail |
+| Hash/remove raw payment info from `PaymentInformation` | PCI-DSS compliance |
+
+#### Phase 4 — Comprehensive Indexing Strategy
+
+| Index | Table.Column(s) | Justification |
+|---|---|---|
+| `idx_appuser_email` | `AppUser.EmailId` | Login/lookup by email |
+| `idx_appuser_phone` | `AppUser.PhoneNumber` | Login/lookup by phone |
+| `idx_customer_userid` | `Customer.UserID` | JOIN acceleration |
+| `idx_driver_userid` | `Driver.UserID` | JOIN acceleration |
+| `idx_riderequest_datetime` | `RideRequest.ReqDateTime` | Date-range queries |
+| `idx_riderequest_status` | `RideRequest.RideStatusId` | Filter by status |
+| `idx_feedback_customerid` | `Feedback.CustomerID` | Customer feedback lookup |
+| `idx_insurancelogs_vehicleid` | `InsuranceLogs.VehicleID` | Already exists ✓ |
+| Composite: `idx_riderequest_driver_date` | `RideRequest(DriverID, ReqDateTime)` | Driver history queries |
+| Composite: `idx_riderequest_customer_date` | `RideRequest(CustomerID, ReqDateTime)` | Customer history queries |
+
+#### Phase 5 — Scalability & PK Standardization
+
+| Change | Rationale |
+|---|---|
+| Convert all manual `INT` PKs to `AUTO_INCREMENT` | Prevent ID collision at scale |
+| Add `ON DELETE CASCADE` / `SET NULL` rules per FK | Controlled cleanup |
+| Fix `CustomerAndVehicleView` JOIN logic | Currently compares `CustomerId = VehicleId` (bug) |
+| Fix `ServiceDueinDays` UDF argument order | Returns wrong sign |
+| Consolidate to one SQL dialect (MySQL) | Eliminate dual-platform confusion |
+
+### Proposed ERD (To-Be)
+
+```mermaid
+erDiagram
+    AppUser ||--o| Customer : "is a"
+    AppUser ||--o| Driver : "is a"
+    Driver }o--|| Vehicle : "drives"
+    Vehicle ||--o{ InsuranceLogs : "has"
+    Insurance ||--o{ InsuranceLogs : "covers"
+    Vehicle ||--o{ ServiceRequest : "serviced by"
+    Service ||--o{ ServiceRequest : "provides"
+    Customer ||--o{ RideRequest : "requests"
+    Driver ||--o{ RideRequest : "fulfills"
+    Vehicle ||--o{ RideRequest : "assigned to"
+    TripEstimate ||--o{ RideRequest : "estimates"
+    Customer ||--o{ Feedback : "gives"
+    Driver ||--o{ Feedback : "receives"
+    RideRequest }o--|| RideStatus : "has status"
+    RideRequest }o--|| Location : "pickup"
+    RideRequest }o--|| Location : "destination"
+    Vehicle }o--|| VehicleTypeLookup : "is type"
+    RideRequest }o--|| TripTypeLookup : "is type"
+```
+
+---
+
+## Phased Implementation Plan
+
+### Phase 1: Critical Fixes (Low Risk)
+- Add PKs to `PaymentInformation`, `InsuranceLogs`
+- Drop `Temp` table
+- Rename `User` → `AppUser`
+- Add UNIQUE constraints
+
+### Phase 2: Normalization (Medium Risk)
+- Create `Location`, `TripTypeLookup`, `VehicleTypeLookup`, `RideStatus` tables
+- Migrate data from freeform columns to FKs
+- Update views and stored procedures
+
+### Phase 3: Security Hardening (High Priority)
+- Remove/encrypt `BankAccInfo`
+- Externalize encryption keys
+- Add audit timestamps
+
+### Phase 4: Indexing (Low Risk)
+- Add 10+ new indexes per strategy above
+- Benchmark query performance before/after
+
+### Phase 5: Cleanup & Consolidation
+- Standardize all PKs to `AUTO_INCREMENT`
+- Fix buggy views and UDFs
+- Consolidate to single MySQL dialect
+- Add `ON DELETE` rules
+
+---
+
+## Verification Plan
+
+### Automated Tests
+Since this is a raw SQL project with no ORM framework or test suite, verification will be done via SQL script execution:
+
+1. **Schema Validation Script** — Write a SQL script that queries `INFORMATION_SCHEMA.TABLES`, `INFORMATION_SCHEMA.COLUMNS`, `INFORMATION_SCHEMA.KEY_COLUMN_USAGE`, and `INFORMATION_SCHEMA.STATISTICS` to verify:
+   - All tables have a primary key
+   - All expected UNIQUE constraints exist
+   - All expected indexes exist
+   - All FK columns have NOT NULL
+   - All tables have `created_at` and `updated_at` columns
+
+2. **Data Migration Validation** — After each phase, run `SELECT COUNT(*)` comparisons between old and new tables to confirm zero data loss.
+
+3. **View & Procedure Smoke Tests** — Execute all 4 views and 4 stored procedures after migration and verify they return results without errors.
+
+### Manual Verification
+1. **Review the generated migration scripts** before executing against any database
+2. **User should confirm** which SQL dialect is the primary target (MySQL vs SQL Server) before Phase 5 consolidation
+3. **User should confirm** how encryption keys should be managed (environment variables, AWS KMS, HashiCorp Vault, etc.)
+
+> [!IMPORTANT]
+> **User input needed before execution:**
+> 1. Is **MySQL** the canonical database engine, or SQL Server?  
+> 2. How should encryption keys be managed in production?  
+> 3. Is the `Temp` table used anywhere in application code, or safe to drop?  
+> 4. Should we preserve backward compatibility with existing INSERT CSV data, or regenerate seed data?
